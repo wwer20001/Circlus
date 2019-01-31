@@ -1,6 +1,6 @@
 # Circlus
 
-Last version :: ver 0.0.1
+Last version :: ver 0.1.1
 
 Circle Rotation Menu System.
 
@@ -18,3 +18,11 @@ Recommand Unity version 2018.*
 
 - Auto generate circle menu(Menu item max count is 360).
 - Control circle menu rotation.
+
+## Patch
+
+ver 0.1.1
+- Fixed: center align fail bug when menu item counts not 20.
+
+ver 0.1
+- First version!
