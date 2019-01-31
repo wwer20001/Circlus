@@ -40,6 +40,8 @@ public class RotationMenuManager : MonoBehaviour
     public bool IsLoop { get { return isLoop; } }
     [SerializeField]
     private int StartPosition;
+    [SerializeField]
+    private float BetweenItem2ItemAngle;
     #endregion
 
     #region Property
@@ -73,12 +75,12 @@ public class RotationMenuManager : MonoBehaviour
             }
 
             timer += Time.deltaTime * 10f;
-            float nowAngle = 18f * Mathf.Lerp(leftAngle, goalAngle, timer);
+            float nowAngle = BetweenItem2ItemAngle * Mathf.Lerp(leftAngle, goalAngle, timer);
             transform.rotation = Quaternion.Euler(0f, 0f, nowAngle);
         }
         else
         {
-            leftAngle = transform.rotation.eulerAngles.z / 18f;
+            leftAngle = transform.rotation.eulerAngles.z / BetweenItem2ItemAngle;
             goalAngle = Mathf.RoundToInt(leftAngle);
             timer = 0f;
         }
@@ -106,11 +108,11 @@ public class RotationMenuManager : MonoBehaviour
         }
         rotationMenuItems.Clear();
 
-        float itemBetweenAngle = 360f / menuItemCount;
+        BetweenItem2ItemAngle = 360f / menuItemCount;
 
         for (int i = 0; i < menuItemCount; i++)
         {
-            var angle = (centerMenuAngle - centerAngleOffset) + (itemBetweenAngle * i);
+            var angle = (centerMenuAngle - centerAngleOffset) + (BetweenItem2ItemAngle * i);
 
             var item = Instantiate(menuItemPrefab).GetComponent<RotationMenuItem>();
             item.name = string.Format("SubMenuItem {0:D3}", i);
