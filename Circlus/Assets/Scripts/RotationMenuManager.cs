@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public enum ERotateDirection
@@ -67,6 +68,7 @@ public class RotationMenuManager : MonoBehaviour
     float goalAngle;
     void Update()
     {
+        if (isImmediatelyMove) return;
         if (!InputManager.Instance.IsTouched)
         {
             if (timer > 1.0f)
@@ -75,6 +77,7 @@ public class RotationMenuManager : MonoBehaviour
             }
 
             timer += Time.deltaTime * 10f;
+
             float nowAngle = BetweenItem2ItemAngle * Mathf.Lerp(leftAngle, goalAngle, timer);
             transform.rotation = Quaternion.Euler(0f, 0f, nowAngle);
         }
@@ -82,6 +85,7 @@ public class RotationMenuManager : MonoBehaviour
         {
             leftAngle = transform.rotation.eulerAngles.z / BetweenItem2ItemAngle;
             goalAngle = Mathf.RoundToInt(leftAngle);
+
             timer = 0f;
         }
 
@@ -89,7 +93,11 @@ public class RotationMenuManager : MonoBehaviour
 
     private void RotateButtonPannel(float delta)
     {
-        transform.Rotate(Vector3.forward, delta);
+        var rot = transform.rotation.eulerAngles.z + delta;
+        //if (rot >= 0 && rot <= 270)
+        {
+            transform.Rotate(Vector3.forward, delta);
+        }
     }
 
     public void SetCenterItem(RotationMenuItem item)
@@ -98,6 +106,40 @@ public class RotationMenuManager : MonoBehaviour
         CenterItem = item;
     }
 
+    private bool isImmediatelyMove = false;
+    public void SetCenterItemImmediately(RotationMenuItem item)
+    {
+        if (isImmediatelyMove) return;
+        isImmediatelyMove = true;
+        StartCoroutine(MoveCenterSelectItemImmediately(item));
+    }
+
+    private IEnumerator MoveCenterSelectItemImmediately(RotationMenuItem item)
+    {
+        float nowAngle = transform.rotation.eulerAngles.z;
+        float goalAngle = (float)item.Index * BetweenItem2ItemAngle;
+        Debug.Log(nowAngle + " / " + goalAngle);
+        int diffIndex = Mathf.Abs(CenterItem.Index - item.Index) < menuItemCount * 0.5f ? Mathf.Abs(CenterItem.Index - item.Index) 
+            : CenterItem.Index < item.Index ? (CenterItem.Index + menuItemCount) - item.Index : Mathf.Abs(CenterItem.Index - (item.Index + menuItemCount));
+
+        Debug.Log(diffIndex);
+        float timer = 0;
+
+        Quaternion startRotation = transform.rotation;
+        Quaternion endRotation = Quaternion.Euler(transform.rotation.eulerAngles.x, transform.rotation.eulerAngles.y, goalAngle);
+
+        while (timer <= 1f)
+        {
+            yield return null;
+            timer += (Time.deltaTime * 5f) / diffIndex;
+            transform.rotation = Quaternion.Lerp(startRotation, endRotation, timer);
+
+            leftAngle = transform.rotation.eulerAngles.z / BetweenItem2ItemAngle;
+            this.goalAngle = Mathf.RoundToInt(leftAngle);
+        }
+
+        isImmediatelyMove = false;
+    }
 
     public void GenerateRotationMenuItems()
     {

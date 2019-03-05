@@ -47,13 +47,8 @@ public class RotationMenuItem : MonoBehaviour
         Index = idx;
     }
 
-    public void In()
+    public void SetCenterImmediately()
     {
-
-    }
-
-    public void Out()
-    {
-
+        rotationMenuManager.SetCenterItemImmediately(this);
     }
 }
